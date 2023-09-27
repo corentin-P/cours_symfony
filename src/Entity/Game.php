@@ -94,6 +94,10 @@ class Game
      */
     public function getSupport(): Collection
     {
+        /* $qb = $this->createQueryBuilder('s')
+        ->orderBy('s.constructor', 'ASC');
+
+        return $qb->getQuery()->getResult(); */
         return $this->Support;
     }
 

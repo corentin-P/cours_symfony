@@ -33,7 +33,7 @@
                 <td>{% if ((entity.category) is not empty) %}
                     {{ entity.category.name }}
                 {% endif %}</td>
-                <td> {% for support in entity.Support %} 
+                <td> {% for support in entity.getSupport() %} 
                 {{ support }} 
                 {% endfor %}
                 </td>
