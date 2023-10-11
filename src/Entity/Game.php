@@ -26,10 +26,14 @@ class Game
     private \DateTime|null $releaseDate = null;
 
     #[ORM\ManyToOne(inversedBy: 'games')]
+    #[ORM\JoinColumn(onDelete: 'SET NULL')] // Met cette valeur à null en cas de suppression de la categorie
     private ?Category $Category = null;
 
     #[ORM\ManyToMany(targetEntity: Support::class)]
     private Collection $Support;
+
+    #[ORM\Column(nullable: true)]
+    private ?bool $published = null;
 
     public function __construct()
     {
@@ -113,6 +117,18 @@ class Game
     public function removeSupport(Support $support): static
     {
         $this->Support->removeElement($support);
+
+        return $this;
+    }
+
+    public function isPublished(): ?bool
+    {
+        return $this->published;
+    }
+
+    public function setPublished(?bool $published): static
+    {
+        $this->published = $published;
 
         return $this;
     }

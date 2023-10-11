@@ -5,6 +5,8 @@ namespace App\Form;
 use App\Entity\Category;
 use App\Entity\Game;
 use App\Entity\Support;
+use Doctrine\ORM\QueryBuilder;
+use Doctrine\ORM\EntityRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -12,6 +14,9 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class GameType extends AbstractType
 {
+    /**
+     * @JoinColumn(name="game_id", referencedColumnName="id")
+     */
     public function buildForm(FormBuilderInterface $builder, array $options) : void
     {
         $builder
@@ -36,8 +41,15 @@ class GameType extends AbstractType
                 
                 'multiple'=>true, 
                 
-                'expanded'=>true
-            ]);
+                'expanded'=>true,
+                'query_builder' => function (EntityRepository $er) : QueryBuilder {
+                    return $er->createQueryBuilder('s')->orderBy('s.constructor', 'ASC');
+             }]
+            )
+            
+            ->add('published')
+            
+            ;
 
     }
 
