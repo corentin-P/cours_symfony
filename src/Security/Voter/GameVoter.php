@@ -2,6 +2,7 @@
 
 namespace App\Security\Voter;
 
+use App\Entity\User;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -22,12 +23,20 @@ class GameVoter extends Voter
     protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token): bool
     {
         $user = $token->getUser();
-       if($attribute == self::VIEW){
-        
-        return $subject->isPublished();
 
-       }
+        if($user instanceof User && $user->hasRole("ROLE_ADMIN")){
+            return true;
+        }
 
+        if($attribute == self::VIEW){
+            if ($subject->isPublished() || $subject->getAuthor()==$user)
+                return true;
+            return false;
+        }
+
+        if ($attribute === self::EDIT){
+            return $user===$subject->getAuthor();
+        }
         return false;
     }
 }

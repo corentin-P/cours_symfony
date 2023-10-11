@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Game;
 use App\Form\GameType;
 use App\Repository\GameRepository;
+use App\Security\Voter\GameVoter;
 use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -24,9 +25,11 @@ class GameController extends AbstractController
         ]);
     }
 
-    #[Route('/game/{id<\d+>')]
+    #[Route('/game/{id<\d+>}')]
     public function show(Game $entity) : Response 
     {
+        $this->denyAccessUnlessGranted(GameVoter::VIEW, $entity);
+
         return $this->render('game/show.html.twig', ['entity' => $entity,]);
     }
 
@@ -35,7 +38,9 @@ class GameController extends AbstractController
     #[IsGranted('ROLE_USER')]
     public function new(EntityManagerInterface $entityManager, Request $request): Response
     {
+        $user = $this->getUser();
         $entity = new Game();
+        $entity->setAuthor($user);
         //$entity->setName('Tetris');
         //$entity->setDescription('');
 
@@ -66,6 +71,7 @@ class GameController extends AbstractController
     #[Route('/game/{id<\d+>}/edit')]
     public function edit(game $entity, Request $request, EntityManagerInterface $em):Response
     {
+        $this->denyAccessUnlessGranted(GameVoter::EDIT, $entity);
         $form = $this->createForm(GameType::class, $entity);
         $form->handleRequest($request);
         if($form->isSubmitted() && $form->isValid())
@@ -79,6 +85,7 @@ class GameController extends AbstractController
     #[Route('/game/{id<\d+>}/delete')]
     public function delete(game $entity, Request $request, EntityManagerInterface $em):Response
     {
+        $this->denyAccessUnlessGranted(GameVoter::EDIT, $entity);
         if ($request->getMethod() === Request::METHOD_POST){
             if ($this->isCsrfTokenValid('delete_game', $request->get('_token'))){
                 $em->remove($entity);
