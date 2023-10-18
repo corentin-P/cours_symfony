@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\Game;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\Tools\Pagination\Paginator;
 use Doctrine\Persistence\ManagerRegistry;
 
 class GameRepository extends ServiceEntityRepository
@@ -21,5 +22,32 @@ class GameRepository extends ServiceEntityRepository
         ;
 
         return $qb->getQuery()->getResult();
+    }
+
+    public function findFiltered(string $published ="All", string $search="", string $category = "ALL", int $itemCount = 10, int $page = 1)
+    {
+        $offset = ($page-1)* $itemCount;
+        $qb = $this->createQueryBuilder('g')
+            ->addSelect("c, s, a")
+            ->leftJoin('g.Category', 'c')
+            ->leftJoin('g.Support', 's')
+            ->leftJoin('g.author', 'a')
+            ->setMaxResults($itemCount)
+            ->setFirstResult($offset)
+            ;
+
+        if ($published!=='ALL'){
+            $qb->where('g.published= :published')->setParameter('published', $published==="1");
+        }
+
+        if ($search !== ""){
+            $qb->andWhere('g.name like :search')->setParameter('search', "%$search%");
+        }
+
+        if ($category !== "ALL"){
+            $qb->andWhere('c.id = :category')->setParameter('category', (int) $category);
+        }
+
+        return new Paginator($qb->getQuery());
     }
 }

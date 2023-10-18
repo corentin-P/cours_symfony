@@ -11,9 +11,14 @@ use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Security\Core\Security;
 
 class GameType extends AbstractType
 {
+    public function __construct(private Security $security)
+    {
+        
+    }
     /**
      * @JoinColumn(name="game_id", referencedColumnName="id")
      */
@@ -45,11 +50,14 @@ class GameType extends AbstractType
                 'query_builder' => function (EntityRepository $er) : QueryBuilder {
                     return $er->createQueryBuilder('s')->orderBy('s.constructor', 'ASC');
              }]
-            )
+            );
             
-            ->add('published')
+            // ajouter le champ seulement si l'utilisateur est admin
+            if ($this->security->isGranted('ROLE_ADMIN')){
+                $builder->add('published');
+            }
             
-            ;
+            
 
     }
 
