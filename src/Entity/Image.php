@@ -97,4 +97,14 @@ class Image
             $this->file->move(self::getPublicRootDir(), $this->path);
         }
     }
+
+    public function getWebPath(): string
+    {
+        return '/images/'.$this->path;
+    }
+
+    public function __toString(): string
+    {
+        return $this->getWebPath();
+    }
 }
