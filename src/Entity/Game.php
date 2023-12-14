@@ -42,6 +42,9 @@ class Game
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $updatedAt = null;
 
+    #[ORM\OneToOne(cascade: ['persist', 'remove'])]
+    private ?Image $mainImage = null;
+
     public function __construct()
     {
         $this->supports = new ArrayCollection();
@@ -162,6 +165,18 @@ class Game
     public function setUpdatedAt(?\DateTimeInterface $updatedAt): static
     {
         $this->updatedAt = $updatedAt;
+
+        return $this;
+    }
+
+    public function getMainImage(): ?Image
+    {
+        return $this->mainImage;
+    }
+
+    public function setMainImage(?Image $mainImage): static
+    {
+        $this->mainImage = $mainImage;
 
         return $this;
     }
