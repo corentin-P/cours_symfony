@@ -9,7 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 // Indique à Doctrine que cette classe correspond à une table
 #[ORM\Entity]
-#[ORM\HasLifecycleCallbacks]
+#[ORM\HasLifecycleCallbacks] // possède des évènements 
 class Game
 {
     #[ORM\Id] // Clé primaire
@@ -42,6 +42,8 @@ class Game
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $updatedAt = null;
 
+    // Cascade permet d'insérer l'objet image en DB en même temps que le Game 
+    // Même chose pour le remove 
     #[ORM\OneToOne(cascade: ['persist', 'remove'])]
     private ?Image $mainImage = null;
 
@@ -50,6 +52,7 @@ class Game
         $this->supports = new ArrayCollection();
     }
 
+    // évènement 
     #[ORM\PreUpdate]
     public function preUpdate(): void 
     {

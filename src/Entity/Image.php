@@ -4,8 +4,11 @@ namespace App\Entity;
 
 use App\Repository\ImageRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
+Use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: ImageRepository::class)]
+#[ORM\HasLifecycleCallbacks] // pour les évènements 
 class Image
 {
     #[ORM\Id]
@@ -18,6 +21,9 @@ class Image
 
     #[ORM\Column(length: 255)]
     private ?string $path = null;
+
+    #[Assert\Image(maxSize:'3M')]
+    private ?UploadedFile $file = null;
 
     public function getId(): ?int
     {
@@ -46,5 +52,49 @@ class Image
         $this->path = $path;
 
         return $this;
+    }
+
+    public function getFile(): ?UploadedFile
+    {
+        return $this->file;
+    }
+
+    public function setFile(UploadedFile $f) 
+    {
+        $this->file = $f;
+    }
+
+    /**
+     * Génération d'un nom de fichier pour éviter les doublons 
+     */
+    #[ORM\PrePersist]
+    public function generatePath(): self
+    {
+        // Si un fichier a bien été envoyé 
+        if ($this->file instanceof UploadedFile){
+            // $this->path = uniqid('img_'); // Génère un nom "img_64646464" 
+            $this->path = time()."img".'.'.$this->file->guessClientExtension();
+            $this->name = $this->file->getClientOriginalName();
+
+        }
+
+        return $this;
+    }
+
+    /**
+     * Retourne le lien absolu vers le dossier d'upload 
+     */
+    public static function getPublicRootDir() : string 
+    {
+        return __DIR__.'/../../public/images/'; 
+    }
+
+    #[ORM\PostPersist]
+    public function upload(): void 
+    {
+        if ($this->file instanceof UploadedFile) {
+            // Déplace le fichier uploadé vers le bon dossier et le renomme 
+            $this->file->move(self::getPublicRootDir(), $this->path);
+        }
     }
 }

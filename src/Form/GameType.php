@@ -50,6 +50,9 @@ class GameType extends AbstractType
                     ;
                 }
             ])
+
+            // Formulaire imbriqué 
+            ->add('mainImage', ImageType::class)
         ;
 
         // Ajoute le champ seulement si l'utilisateur est admin
