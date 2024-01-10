@@ -10,6 +10,7 @@ use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\QueryBuilder;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Security\Core\Security;
@@ -25,8 +26,8 @@ class GameType extends AbstractType
     {
         $builder 
             ->add('name', options: [
-                'label' => 'Nom du jeu',
-                'help' => 'Quel est le titre du jeu ?',
+                'label' => 'game.name',
+                'help' => 'game.name_help',
             ])
             ->add('description', WysiwygType::class, options: [
                 'attr' => [
@@ -54,6 +55,7 @@ class GameType extends AbstractType
 
             // Formulaire imbriqué 
             ->add('mainImage', ImageType::class)
+            ->add('deleteMainImage', CheckboxType::class, ['required'=>false])
         ;
 
         // Ajoute le champ seulement si l'utilisateur est admin

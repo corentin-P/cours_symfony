@@ -44,8 +44,10 @@ class Game
 
     // Cascade permet d'insérer l'objet image en DB en même temps que le Game 
     // Même chose pour le remove 
-    #[ORM\OneToOne(cascade: ['persist', 'remove'])]
+    #[ORM\OneToOne(cascade: ['persist', 'remove'], orphanRemoval: true)]
     private ?Image $mainImage = null;
+
+    private bool $deleteMainImage = false; 
 
     public function __construct()
     {
@@ -180,6 +182,22 @@ class Game
     public function setMainImage(?Image $mainImage): static
     {
         $this->mainImage = $mainImage;
+
+        return $this;
+    }
+
+    public function getDeleteMainImage()
+    {
+        return $this->deleteMainImage;
+    }
+
+    public function setDeleteMainImage($deleteMainImage)
+    {
+        $this->deleteMainImage = $deleteMainImage;
+        if($this->deleteMainImage) {
+            $this->mainImage = null; // supprime l'objet
+
+        }
 
         return $this;
     }

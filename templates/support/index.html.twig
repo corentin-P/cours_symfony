@@ -8,7 +8,7 @@
     <table class="table">
         <thead>
             <tr>
-                <th>Id</th>
+                <th></th>
                 <th>Name</th>
                 <th>Published</th>
                 <th>Constructor</th>
@@ -20,7 +20,11 @@
         <tbody>
         {% for support in supports %}
             <tr>
-                <td>{{ support.id }}</td>
+                <td>
+                {% if (support.mainImage) %}
+                <img src="{{ support.mainImage }}" width="120" />
+                {% endif %}
+                </td>
                 <td>{{ support.name }}</td>
                 <td>{{ support.published ? 'Yes' : 'No' }}</td>
                 <td>{{ support.constructor }}</td>

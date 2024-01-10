@@ -25,6 +25,8 @@ class Image
     #[Assert\Image(maxSize:'3M')]
     private ?UploadedFile $file = null;
 
+    private ?string $oldPath = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -59,15 +61,21 @@ class Image
         return $this->file;
     }
 
-    public function setFile(UploadedFile $f) 
+    public function setFile(UploadedFile $f): self
     {
         $this->file = $f;
+        $this->oldPath = $this->path; // Copie le chemin de lancien fichier pour le supprimer plus tard 
+
+        $this->path=""; // Modifier path pour forcer l'update de la db et l'upload
+
+        return $this;
     }
 
     /**
      * Génération d'un nom de fichier pour éviter les doublons 
      */
     #[ORM\PrePersist]
+    #[ORM\PreUpdate]
     public function generatePath(): self
     {
         // Si un fichier a bien été envoyé 
@@ -90,8 +98,14 @@ class Image
     }
 
     #[ORM\PostPersist]
+    #[ORM\PostUpdate]
     public function upload(): void 
     {
+        // Supprimer l'ancien fichier
+        $old = self::getPublicRootDir().$this->oldPath; 
+        if (is_file($old)) {
+            unlink($old);
+        }
         if ($this->file instanceof UploadedFile) {
             // Déplace le fichier uploadé vers le bon dossier et le renomme 
             $this->file->move(self::getPublicRootDir(), $this->path);
@@ -106,5 +120,15 @@ class Image
     public function __toString(): string
     {
         return $this->getWebPath();
+    }
+
+    // supprimer le fichier image avant de supprimer le jeu dans la db
+    #[ORM\PreRemove]
+    public function removeFile(): void 
+    {
+        $path = self::getPublicRootDir().$this->path;
+        if (is_file($path)) {
+            unlink($path);
+        }
     }
 }
